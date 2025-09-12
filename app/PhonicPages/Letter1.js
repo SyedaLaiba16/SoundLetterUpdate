@@ -9,7 +9,7 @@ const letterData = {
   S: {
     sound: require("../../assets/sound/s.m4a"),
     words: [
-      { label: "Sun", image: require("../../assets/images/myimages/sun.png") },
+      { label: "Sun", image: require("../../assets/images/my/sun.png") },
       { label: "Snake", image: require("../../assets/images/myimages/snake.png") }
     ]
   },
