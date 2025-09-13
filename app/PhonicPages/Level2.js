@@ -1,4 +1,4 @@
-// app/PhonicPages/Level1.js
+// app/PhonicPages/Level2.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -12,14 +12,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 
 const data = [
-  { letter: "S", sound: require("../../assets/sound/s.m4a") },
-  { letter: "A", sound: require("../../assets/sound/a.m4a") },
-  { letter: "T", sound: require("../../assets/sound/t.m4a") },
-  { letter: "P", sound: require("../../assets/sound/p.m4a") },
-  { letter: "I", sound: require("../../assets/sound/i.m4a") },
-  { letter: "N", sound: require("../../assets/sound/n.m4a") },
-  { letter: "M", sound: require("../../assets/sound/m.m4a") },
-  { letter: "D", sound: require("../../assets/sound/d.m4a") },
+  { letter: "G", sound: require("../../assets/sound/g.m4a") },
+  { letter: "O", sound: require("../../assets/sound/o.m4a") },
+  { letter: "C", sound: require("../../assets/sound/c.m4a") },
+  { letter: "K", sound: require("../../assets/sound/k.mp3") },
+  { letter: "E", sound: require("../../assets/sound/e.m4a") },
+  { letter: "U", sound: require("../../assets/sound/u.m4a") },
+  { letter: "R", sound: require("../../assets/sound/r.m4a") },
+  { letter: "H", sound: require("../../assets/sound/h.m4a") },
+  { letter: "B", sound: require("../../assets/sound/b.m4a") },
+  { letter: "F", sound: require("../../assets/sound/f.m4a") },
+  { letter: "L", sound: require("../../assets/sound/l.m4a") },
 ];
 
 export default function Level1({ onNext, onBack }) {

@@ -1,21 +1,17 @@
-// PhonicLevels.js (app/PhonicPages/PhonicLevels.js)
 import React from "react";
 import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
 
 const levels = [
   { id: "1", name: "Level 1", screenName: "Level1Screen" },
-  /* 
   { id: "2", name: "Level 2", screenName: "Level2Screen" },
   { id: "3", name: "Level 3", screenName: "Level3Screen" },
-  { id: "4", name: "Letter Builder", screenName: "LetterBuilderScreen" },
-  { id: "5", name: "Quiz", screenName: "QuizScreen" },
-  */
+  // Future levels can be added here
 ];
 
-export default function PhonicLevels({ navigation }) {
+export default function PhonicLevels({ onNext }) {
   const handleSelectLevel = (screenName, name) => {
     console.log("Navigating to:", name);
-    navigation.navigate(screenName);
+    onNext({ screen: screenName });
   };
 
   return (
