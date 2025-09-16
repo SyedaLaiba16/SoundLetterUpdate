@@ -291,7 +291,7 @@ const navigateToGame = () => {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: "#fff", 
+    backgroundColor: "#f5f5f5", // Changed to light gray
     padding: 20 
   },
   header: {
@@ -303,22 +303,24 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginLeft: 55,
-    color: "#000",
+    color: "#333333", // Changed to dark gray
   },
   activityTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: "bold",
     marginVertical: 10,
+    color: "#333333", // Added dark gray color
   },
   soundButton: {
-    backgroundColor: "#ffcc00",
+    backgroundColor: "#87CEEB", // Changed to sky blue
     padding: 14,
     borderRadius: 10,
     alignItems: "center",
     marginBottom: 20,
   },
   soundButtonText: { 
-    fontSize: 18 
+    fontSize: 18,
+    color: "#333333", // Added dark gray color
   },
   optionsRow: {
     flexDirection: "row",
@@ -340,16 +342,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
     textAlign: "center",
+    color: "#333333", // Added dark gray color
   },
   nextButton: {
-    backgroundColor: "#28a745",
+    backgroundColor: "#98FB98", // Changed to mint green
     padding: 14,
     borderRadius: 10,
     alignItems: "center",
     marginTop: 30,
   },
   nextButtonText: {
-    color: "#fff",
+    color: "#333333", // Changed to dark gray
     fontSize: 18,
     fontWeight: "600",
   },

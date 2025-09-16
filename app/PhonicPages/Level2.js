@@ -91,7 +91,7 @@ export default function Level1({ onNext, onBack }) {
           >
             <View style={styles.letterRow}>
               <Text style={styles.letter}>{item.letter}</Text>
-              <Ionicons name="volume-high" size={28} color="#fff" />
+              <Ionicons name="volume-high" size={28} color="#000" />
             </View>
           </Pressable>
         )}
@@ -101,7 +101,11 @@ export default function Level1({ onNext, onBack }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 20 },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#f5f5f5", // Changed to light gray
+    padding: 20 
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -111,13 +115,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginLeft: 55,
-    color: "#000",
+    color: "#000", // Changed to dark gray
   },
   list: {
     justifyContent: "center",
   },
   letterBox: {
-    backgroundColor: "#0066cc",
+    backgroundColor: "#4682B4", // Changed to deep blue
     padding: 20,
     marginVertical: 8,
     borderRadius: 12,
@@ -128,8 +132,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   letter: {
-    color: "#fff",
-    fontSize: 26,
+    color: "#000",
+    fontSize: 18,
     fontWeight: "bold",
     marginRight: 10,
   },
