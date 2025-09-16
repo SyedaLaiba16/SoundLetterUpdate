@@ -273,6 +273,8 @@ export default function SoundMatchingGame({ route, onBack, onComplete }) {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [questions, setQuestions] = useState([]);
   const [triesLeft, setTriesLeft] = useState(2);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(null);
 
   const currentQuestion = questions[questionIndex];
 
@@ -289,6 +291,8 @@ export default function SoundMatchingGame({ route, onBack, onComplete }) {
     if (currentQuestion) {
       playLetterSound();
       setTriesLeft(2);
+      setSelectedOption(null);
+      setIsCorrect(null);
     }
     return () => {
       if (sound) sound.unloadAsync();
@@ -314,31 +318,42 @@ export default function SoundMatchingGame({ route, onBack, onComplete }) {
   };
 
   const handleOptionPress = (selectedLabel) => {
-    const isCorrect = currentQuestion.correctAnswers.some((ans) => ans.label === selectedLabel);
+    const correct = currentQuestion.correctAnswers.some((ans) => ans.label === selectedLabel);
+    
+    setSelectedOption(selectedLabel);
+    setIsCorrect(correct);
 
-    if (isCorrect) {
+    if (correct) {
       Speech.speak("Correct!", { language: "en-US", pitch: 1.0, rate: 0.9 });
-      if (questionIndex + 1 < questions.length) {
-        Alert.alert("✅ Correct!", "", [{ text: "Next", onPress: () => setQuestionIndex(questionIndex + 1) }]);
-      } else {
-        Speech.speak("Great job!", { language: "en-US", pitch: 1.0, rate: 0.9 });
-        Alert.alert("🎉 Great job!", "", [{ text: "OK", onPress: onComplete }]);
-      }
+      setTimeout(() => {
+        if (questionIndex + 1 < questions.length) {
+          Alert.alert("✅ Correct!", "", [{ text: "Next", onPress: () => setQuestionIndex(questionIndex + 1) }]);
+        } else {
+          Speech.speak("Great job!", { language: "en-US", pitch: 1.0, rate: 0.9 });
+          Alert.alert("🎉 Great job!", "", [{ text: "OK", onPress: onComplete }]);
+        }
+      }, 1000);
     } else {
       Vibration.vibrate(400);
       Speech.speak("Wrong!", { language: "en-US", pitch: 1.0, rate: 0.9 });
-      if (triesLeft > 1) {
-        setTriesLeft(triesLeft - 1);
-        Alert.alert("❌ Wrong!", `Tries left: ${triesLeft - 1}`);
-      } else {
-        if (questionIndex + 1 < questions.length) {
-          Alert.alert("Out of tries!", "Moving to next question.", [
-            { text: "Next", onPress: () => setQuestionIndex(questionIndex + 1) },
-          ]);
+      setTimeout(() => {
+        if (triesLeft > 1) {
+          setTriesLeft(triesLeft - 1);
+          setSelectedOption(null);
+          setIsCorrect(null);
+          Alert.alert("❌ Wrong!", `Tries left: ${triesLeft - 1}`);
         } else {
-          Alert.alert("Out of tries!", "Let's move back.", [{ text: "OK", onPress: onComplete }]);
+          setSelectedOption(null);
+          setIsCorrect(null);
+          if (questionIndex + 1 < questions.length) {
+            Alert.alert("Out of tries!", "Moving to next question.", [
+              { text: "Next", onPress: () => setQuestionIndex(questionIndex + 1) },
+            ]);
+          } else {
+            Alert.alert("Out of tries!", "Let's move back.", [{ text: "OK", onPress: onComplete }]);
+          }
         }
-      }
+      }, 1000);
     }
   };
 
@@ -355,7 +370,7 @@ export default function SoundMatchingGame({ route, onBack, onComplete }) {
       {/* 🔙 Back Arrow + Heading in one row */}
       <View style={styles.headerRow}>
         <Pressable onPress={onBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color="black" />
+          <Ionicons name="arrow-back" size={28} color="#333333" />
         </Pressable>
         <Text style={styles.heading}>Sound Matching - Letter {targetLetter}</Text>
       </View>
@@ -367,35 +382,153 @@ export default function SoundMatchingGame({ route, onBack, onComplete }) {
       </Pressable>
 
       <View style={styles.optionsRow}>
-        {currentQuestion.options.map((item, idx) => (
-          <View key={idx} style={styles.option}>
-            <Image source={item.image} style={styles.image} />
-            <Pressable style={styles.micButton} onPress={() => speakWord(item.label)}>
-              <Text style={styles.micText}>🎤 Hear Word</Text>
-            </Pressable>
-            <Pressable style={styles.selectButton} onPress={() => handleOptionPress(item.label)}>
-              <Text style={styles.selectText}>Select</Text>
-            </Pressable>
-          </View>
-        ))}
+        {currentQuestion.options.map((item, idx) => {
+          const isSelected = selectedOption === item.label;
+          let buttonStyle = styles.selectButton;
+          let textStyle = styles.selectText;
+          
+          if (isSelected) {
+            buttonStyle = isCorrect ? styles.correctButton : styles.wrongButton;
+            textStyle = isCorrect ? styles.correctText : styles.wrongText;
+          }
+          
+          return (
+            <View key={idx} style={styles.option}>
+              <Image source={item.image} style={styles.image} />
+              <Pressable 
+                style={({pressed}) => [
+                  styles.micButton,
+                  pressed && styles.micButtonPressed
+                ]} 
+                onPress={() => speakWord(item.label)}
+              >
+                <Text style={styles.micText}>🎤 Hear Word</Text>
+              </Pressable>
+              <Pressable 
+                style={({pressed}) => [
+                  buttonStyle,
+                  pressed && styles.selectButtonPressed
+                ]} 
+                onPress={() => handleOptionPress(item.label)}
+                disabled={selectedOption !== null}
+              >
+                <Text style={textStyle}>Select</Text>
+              </Pressable>
+            </View>
+          );
+        })}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  headerRow: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  backButton: { marginRight: 10 },
-  heading: { fontSize: 22, fontWeight: "bold" },
-  tries: { fontSize: 18, textAlign: "center", marginBottom: 15, color: "red" },
-  soundButton: { backgroundColor: "#ffcc00", padding: 14, borderRadius: 10, alignItems: "center", marginBottom: 20 },
-  soundButtonText: { fontSize: 18, fontWeight: "bold" },
-  optionsRow: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-around", marginTop: 10 },
-  option: { alignItems: "center", marginVertical: 10, width: 120 },
-  image: { width: 90, height: 90, borderRadius: 10, marginBottom: 8 },
-  micButton: { backgroundColor: "#2196F3", padding: 6, borderRadius: 6, marginBottom: 6 },
-  micText: { color: "#fff", fontSize: 14 },
-  selectButton: { backgroundColor: "#4CAF50", padding: 6, borderRadius: 6 },
-  selectText: { color: "#fff", fontSize: 14 },
+  container: { 
+    flex: 1, 
+    padding: 20, 
+    backgroundColor: "#f5f5f5"
+  },
+  headerRow: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    marginBottom: 10 
+  },
+  backButton: { 
+    marginRight: 10 
+  },
+  heading: { 
+    fontSize: 22, 
+    fontWeight: "bold",
+    color: "#333333"
+  },
+  tries: { 
+    fontSize: 18, 
+    textAlign: "center", 
+    marginBottom: 15, 
+    color: "#F28A8A"
+  },
+  soundButton: { 
+    backgroundColor: "#87CEEB",
+    padding: 14, 
+    borderRadius: 10, 
+    alignItems: "center", 
+    marginBottom: 20 
+  },
+  soundButtonText: { 
+    fontSize: 18, 
+    fontWeight: "bold",
+    color: "#333333"
+  },
+  optionsRow: { 
+    flexDirection: "row", 
+    flexWrap: "wrap", 
+    justifyContent: "space-around", 
+    marginTop: 10 
+  },
+  option: { 
+    alignItems: "center", 
+    marginVertical: 10, 
+    width: 120 
+  },
+  image: { 
+    width: 90, 
+    height: 90, 
+    borderRadius: 10, 
+    marginBottom: 8 
+  },
+  micButton: { 
+    backgroundColor: "#87CEEB",
+    padding: 6, 
+    borderRadius: 6, 
+    marginBottom: 6,
+    width: '100%',
+    alignItems: 'center'
+  },
+  micButtonPressed: {
+    backgroundColor: "#5F9EA0", // Teal for pressed state
+  },
+  micText: { 
+    color: "#333333", 
+    fontWeight: "bold",
+    fontSize: 14 
+  },
+  selectButton: { 
+    backgroundColor: "#87CEEB",
+    padding: 6, 
+    borderRadius: 6,
+    width: '100%',
+    alignItems: 'center'
+  },
+  selectButtonPressed: {
+    backgroundColor: "#20B2AA", // Light sea green for pressed state
+  },
+  selectText: { 
+    color: "#333333",
+    fontSize: 14,
+    fontWeight: "bold"
+  },
+  correctButton: {
+    backgroundColor: "#98FB98", // Mint green for correct
+    padding: 6, 
+    borderRadius: 6,
+    width: '100%',
+    alignItems: 'center'
+  },
+  correctText: {
+    color: "#333333",
+    fontSize: 14,
+    fontWeight: "bold"
+  },
+  wrongButton: {
+    backgroundColor: "#F28A8A", // Coral for wrong
+    padding: 6, 
+    borderRadius: 6,
+    width: '100%',
+    alignItems: 'center'
+  },
+  wrongText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold"
+  },
 });

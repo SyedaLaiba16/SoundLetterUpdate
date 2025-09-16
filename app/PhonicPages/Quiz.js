@@ -45,7 +45,7 @@ const QUESTION_TYPES = {
   WORD_MATCH: "WORD_MATCH",
 };
 
-const QUESTIONS_PER_QUIZ = 5; // Reduced for testing, change back to 15 for production
+const QUESTIONS_PER_QUIZ = 15; // Reduced for testing, change back to 15 for production
 
 export default function PhonicsQuiz({ onBack, userId, level }) {
   const [questions, setQuestions] = useState([]);
@@ -340,14 +340,6 @@ export default function PhonicsQuiz({ onBack, userId, level }) {
           </Text>
         </View>
 
-        <Pressable 
-          style={[styles.button, styles.toggleButton]} 
-          onPress={() => setShowProgress(!showProgress)}
-        >
-          <Text style={styles.buttonText}>
-            {showProgress ? "Hide Progress" : "Show My Progress"}
-          </Text>
-        </Pressable>
 
         {showProgress && <ProgressDisplay />}
         
@@ -472,7 +464,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   soundButton: {
-    backgroundColor: "#ffcc00",
+    backgroundColor: "#87CEEB",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
@@ -493,10 +485,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   correctOption: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#98FB98",
   },
   incorrectOption: {
-    backgroundColor: "#F44336",
+    backgroundColor: "#F28A8A",
   },
   optionText: { 
     fontSize: 18,
@@ -564,7 +556,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 75,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#87CEEB',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,

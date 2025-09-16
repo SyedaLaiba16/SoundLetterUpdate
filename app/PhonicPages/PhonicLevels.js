@@ -27,7 +27,7 @@ export default function PhonicLevels({ onNext }) {
             onPress={() => handleSelectLevel(item.screenName, item.name)}
             style={({ pressed }) => [
               styles.levelButton,
-              pressed && { backgroundColor: "#3399ff" },
+              pressed && { backgroundColor: "#8abae9ff" },
             ]}
           >
             <Text style={styles.levelText}>{item.name}</Text>
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   levelButton: {
     padding: 16,
     marginVertical: 10,
-    backgroundColor: "#4682B4", // Deep Blue buttons
+    backgroundColor: "#87CEEB", // Deep Blue buttons
     borderRadius: 12,
   },
   levelText: {

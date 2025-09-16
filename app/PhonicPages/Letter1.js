@@ -257,13 +257,13 @@ const navigateToGame = () => {
       </View>
 
       {/* Activity 1: Hear Letter Sound */}
-      <Text style={styles.activityTitle}>🔊 Hear the Sound</Text>
+      <Text style={styles.activityTitle}> Hear the Sound</Text>
       <Pressable style={styles.soundButton} onPress={playLetterSound}>
-        <Text style={styles.soundButtonText}>▶️ Say "{letter}"</Text>
+        <Text style={styles.soundButtonText}> 🔊 Say "{letter}"</Text>
       </Pressable>
 
       {/* Activity 2: Tap Object to Hear Word */}
-      <Text style={styles.activityTitle}>🧠 Tap Object to Hear Word</Text>
+      <Text style={styles.activityTitle}> Tap Object to Hear Word</Text>
       <View style={styles.optionsRow}>
         {words.map((item, index) => (
           <Pressable
@@ -320,6 +320,7 @@ const styles = StyleSheet.create({
   },
   soundButtonText: { 
     fontSize: 18,
+     fontWeight: "bold",
     color: "#333333", // Added dark gray color
   },
   optionsRow: {
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
     color: "#333333", // Added dark gray color
   },
   nextButton: {
-    backgroundColor: "#98FB98", // Changed to mint green
+    backgroundColor: "#87CEEB", // Changed to mint green
     padding: 14,
     borderRadius: 10,
     alignItems: "center",
@@ -354,7 +355,7 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: "#333333", // Changed to dark gray
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "bold",
   },
   backButton: {
     padding: 6,

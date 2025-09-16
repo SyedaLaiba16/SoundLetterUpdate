@@ -383,15 +383,15 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
         {shuffledOptions.map((opt, idx) => {
           const label = typeof opt === "string" ? opt : opt.label;
 
-          let bgColor = "#d0f0fd";
+          let bgColor = "#87CEEB";
           if (selectedOption) {
             if (label === currentQuestion.answer && selectedOption === label) {
-              bgColor = "#90EEFF"; // correct
+              bgColor = "#98FB98"; // correct
             } else if (
               label === selectedOption &&
               selectedOption !== currentQuestion.answer
             ) {
-              bgColor = "#FF6B6B"; // wrong
+              bgColor = "#F28A8A"; // wrong
             }
           }
 
@@ -425,7 +425,7 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" },
   backButton: {
     position: "absolute",
     top: 40,

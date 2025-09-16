@@ -14,7 +14,7 @@ import ConfettiCannon from "react-native-confetti-cannon";
 import { Ionicons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
-const COLORS = ["#FF6F61", "#F06292", "#9575CD", "#4FC3F7", "#81C784", "#FFD54F"];
+const COLORS = ["#1961b4ff", "#F06292", "#9575CD", "#4FC3F7", "#81C784", "#FFD54F"];
 
 // All available sounds
 const sounds = {
@@ -55,6 +55,8 @@ const letterConfigs = {
       { id: 3, text: "D" },
       { id: 4, text: "A" },
       { id: 5, text: "A" },
+      { id: 6, text: "A" },
+      { id: 7, text: "A" },
       
     ]
   },
@@ -273,7 +275,7 @@ export default function BalloonGame({ route, onComplete, onBack }) {
         <TouchableOpacity onPress={onBack} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color="black" />
         </TouchableOpacity>
-        <Text style={styles.title}>🎈 Pop the Letter "{targetLetter}" 🎈</Text>
+        <Text style={styles.title}> Pop the Letter "{targetLetter}" </Text>
       </View>
 
       {/* 🎈 Balloons */}
@@ -327,7 +329,7 @@ export default function BalloonGame({ route, onComplete, onBack }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E1F5FE",
+    backgroundColor: "#f5f5f5",
     alignItems: "center",
     justifyContent: "flex-start",
     paddingTop: 40,
@@ -346,7 +348,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#01579B",
+    color: "#333333",
     flexShrink: 1,
   },
   balloonContainer: {
@@ -364,7 +366,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     elevation: 6,
-    shadowColor: "#000",
+    shadowColor: "#911414b9",
     shadowOpacity: 0.25,
     shadowRadius: 5,
   },
@@ -382,5 +384,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     elevation: 8,
   },
-  bannerText: { fontSize: 26, fontWeight: "800", color: "#2E7D32" },
+  bannerText: { fontSize: 26, fontWeight: "800", color: "#4682B4" },
 });

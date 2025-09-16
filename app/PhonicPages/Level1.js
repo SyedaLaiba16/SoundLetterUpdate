@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   letterBox: {
-    backgroundColor: "#4682B4", // Changed to deep blue
+    backgroundColor: "#87CEEB", // Changed to deep blue
     padding: 20,
     marginVertical: 8,
     borderRadius: 12,
