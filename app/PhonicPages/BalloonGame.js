@@ -173,6 +173,17 @@ export default function BalloonGame({ route, onComplete, onBack }) {
   const [balloons, setBalloons] = useState(letterConfigs[targetLetter].balloons);
   const [confetti, setConfetti] = useState(false);
   const [showGreat, setShowGreat] = useState(false);
+  const [score, setScore] = useState(0);
+  const [totalCorrect, setTotalCorrect] = useState(0);
+  const [showCorrectFeedback, setShowCorrectFeedback] = useState(false);
+
+  // Calculate total target letter balloons
+  useEffect(() => {
+    const initialTargetBalloons = letterConfigs[targetLetter].balloons.filter(
+      b => b.text === targetLetter
+    ).length;
+    setTotalCorrect(initialTargetBalloons);
+  }, [targetLetter]);
 
   const animations = useRef(
     balloons.reduce((acc, b) => {
@@ -233,6 +244,18 @@ export default function BalloonGame({ route, onComplete, onBack }) {
   const popBalloon = (id, text) => {
     playSound(text);
     if (text === targetLetter) {
+      // Correct pop - add points and show feedback
+      setScore(prevScore => prevScore + 10);
+      
+      // Show correct feedback
+      setShowCorrectFeedback(true);
+      Speech.speak(`Correct! That's the letter ${targetLetter}`);
+      
+      // Hide feedback after 1.5 seconds
+      setTimeout(() => {
+        setShowCorrectFeedback(false);
+      }, 1500);
+      
       Animated.parallel([
         Animated.timing(animations[id].scale, {
           toValue: 0,
@@ -248,8 +271,41 @@ export default function BalloonGame({ route, onComplete, onBack }) {
         setBalloons((prev) => prev.filter((b) => b.id !== id));
       });
     } else {
-      Speech.speak("Wrong!");
-      Alert.alert("❌ Wrong", `${text} is not correct`);
+      // Wrong pop - show alert with reason
+      const wrongReasons = {
+        A: `This is letter A, but you need to find letter ${targetLetter}. Try again!`,
+        B: `This is letter B, but you need to find letter ${targetLetter}. Try again!`,
+        C: `This is letter C, but you need to find letter ${targetLetter}. Try again!`,
+        D: `This is letter D, but you need to find letter ${targetLetter}. Try again!`,
+        E: `This is letter E, but you need to find letter ${targetLetter}. Try again!`,
+        F: `This is letter F, but you need to find letter ${targetLetter}. Try again!`,
+        G: `This is letter G, but you need to find letter ${targetLetter}. Try again!`,
+        H: `This is letter H, but you need to find letter ${targetLetter}. Try again!`,
+        I: `This is letter I, but you need to find letter ${targetLetter}. Try again!`,
+        J: `This is letter J, but you need to find letter ${targetLetter}. Try again!`,
+        K: `This is letter K, but you need to find letter ${targetLetter}. Try again!`,
+        L: `This is letter L, but you need to find letter ${targetLetter}. Try again!`,
+        M: `This is letter M, but you need to find letter ${targetLetter}. Try again!`,
+        N: `This is letter N, but you need to find letter ${targetLetter}. Try again!`,
+        O: `This is letter O, but you need to find letter ${targetLetter}. Try again!`,
+        P: `This is letter P, but you need to find letter ${targetLetter}. Try again!`,
+        Q: `This is letter Q, but you need to find letter ${targetLetter}. Try again!`,
+        R: `This is letter R, but you need to find letter ${targetLetter}. Try again!`,
+        S: `This is letter S, but you need to find letter ${targetLetter}. Try again!`,
+        T: `This is letter T, but you need to find letter ${targetLetter}. Try again!`,
+        U: `This is letter U, but you need to find letter ${targetLetter}. Try again!`,
+        V: `This is letter V, but you need to find letter ${targetLetter}. Try again!`,
+        W: `This is letter W, but you need to find letter ${targetLetter}. Try again!`,
+        X: `This is letter X, but you need to find letter ${targetLetter}. Try again!`,
+        Y: `This is letter Y, but you need to find letter ${targetLetter}. Try again!`,
+        Z: `This is letter Z, but you need to find letter ${targetLetter}. Try again!`
+      };
+      
+      const reason = wrongReasons[text] || `This is not the correct letter. Find letter ${targetLetter}. Try again!`;
+      
+      // Show alert and speak the reason
+      Alert.alert("❌ Incorrect", reason);
+      Speech.speak(reason);
     }
   };
 
@@ -260,11 +316,16 @@ export default function BalloonGame({ route, onComplete, onBack }) {
     if (remaining.length === 0) {
       setConfetti(true);
       setShowGreat(true);
-      Speech.speak("Great job!");
+      
+      // Bonus points for completing the game
+      const finalScore = score + 50;
+      setScore(finalScore);
+      
+      Speech.speak(`Great job! You found all the ${targetLetter} letters and scored ${finalScore} points!`);
       setTimeout(() => {
         setShowGreat(false);
         if (onComplete) onComplete();
-      }, 2500);
+      }, 3000);
     }
   }, [balloons]);
 
@@ -275,7 +336,15 @@ export default function BalloonGame({ route, onComplete, onBack }) {
         <TouchableOpacity onPress={onBack} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color="black" />
         </TouchableOpacity>
-        <Text style={styles.title}> Pop the Letter "{targetLetter}" </Text>
+        <Text style={styles.title}>Pop the Letter "{targetLetter}"</Text>
+        
+        {/* Score Display */}
+        <View style={styles.scoreContainer}>
+          <Text style={styles.scoreText}>Score: {score}</Text>
+          <Text style={styles.progressText}>
+            {totalCorrect - balloons.filter(b => b.text === targetLetter).length}/{totalCorrect}
+          </Text>
+        </View>
       </View>
 
       {/* 🎈 Balloons */}
@@ -294,7 +363,9 @@ export default function BalloonGame({ route, onComplete, onBack }) {
             <TouchableOpacity
               style={[
                 styles.balloon,
-                { backgroundColor: COLORS[index % COLORS.length] },
+                { 
+                  backgroundColor: COLORS[index % COLORS.length]
+                },
               ]}
               onPress={() => popBalloon(balloon.id, balloon.text)}
               activeOpacity={0.8}
@@ -304,6 +375,13 @@ export default function BalloonGame({ route, onComplete, onBack }) {
           </Animated.View>
         ))}
       </View>
+
+      {/* ✅ Correct feedback */}
+      {showCorrectFeedback && (
+        <View style={styles.correctFeedback}>
+          <Text style={styles.correctText}>✅ Correct! That's {targetLetter}</Text>
+        </View>
+      )}
 
       {/* 🎉 Confetti & Success banner */}
       {confetti && (
@@ -318,7 +396,8 @@ export default function BalloonGame({ route, onComplete, onBack }) {
       {showGreat && (
         <View style={styles.overlay}>
           <View style={styles.banner}>
-            <Text style={styles.bannerText}>🎉 Great! 🎉</Text>
+            <Text style={styles.bannerText}>🎉 Great Job! 🎉</Text>
+            <Text style={styles.scoreSummary}>You scored {score} points!</Text>
           </View>
         </View>
       )}
@@ -350,6 +429,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#333333",
     flexShrink: 1,
+    flex: 1,
+  },
+  scoreContainer: {
+    alignItems: "flex-end",
+  },
+  scoreText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#2196F3",
+  },
+  progressText: {
+    fontSize: 14,
+    color: "#666",
   },
   balloonContainer: {
     flexDirection: "row",
@@ -371,6 +463,21 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   balloonText: { fontSize: 32, fontWeight: "bold", color: "white" },
+  // Correct feedback styles
+  correctFeedback: {
+    position: "absolute",
+    top: "40%",
+    backgroundColor: "rgba(76, 175, 80, 0.9)",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    zIndex: 100,
+  },
+  correctText: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     alignItems: "center",
@@ -383,6 +490,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 16,
     elevation: 8,
+    alignItems: "center",
   },
-  bannerText: { fontSize: 26, fontWeight: "800", color: "#4682B4" },
+  bannerText: { fontSize: 26, fontWeight: "800", color: "#4682B4", marginBottom: 5 },
+  scoreSummary: { fontSize: 18, color: "#666" },
 });

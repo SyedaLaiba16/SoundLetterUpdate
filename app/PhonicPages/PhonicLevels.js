@@ -5,8 +5,7 @@ const levels = [
   { id: "1", name: "Level 1", screenName: "Level1Screen" },
   { id: "2", name: "Level 2", screenName: "Level2Screen" },
   { id: "3", name: "Level 3", screenName: "Level3Screen" },
-  { id: "4", name: "LetterBuilder", screenName: "LetterBuilder" },
-  { id: "5", name: "Quiz", screenName: "Quiz" },
+  { id: "4", name: "Attempt Quiz", screenName: "Quiz" },
   // Future levels can be added here
 ];
 

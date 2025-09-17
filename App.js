@@ -1,16 +1,15 @@
+//App.js
 import React, { useState } from "react";
-
 // Import your screens
 import PhonicLevels from "./app/PhonicPages/PhonicLevels";
 import Level1 from "./app/PhonicPages/Level1";
 import Level2 from "./app/PhonicPages/Level2";
 import Level3 from "./app/PhonicPages/Level3";
 import Letter1 from "./app/PhonicPages/Letter1";
-import BalloonGame from "./app/PhonicPages/BalloonGame"; // Import the unified BalloonGame component
+import BalloonGame from "./app/PhonicPages/BalloonGame";
 import SoundMatchingGame from "./app/PhonicPages/SoundMatchingGame";
 import FlashcardDrill from "./app/PhonicPages/FlashcardDrill";
-import LetterBuilder from "./app/PhonicPages/LetterBuilder";
-import Quiz from "./app/PhonicPages/Quiz";
+import  Quiz from "./app/PhonicPages/Quiz";
 
 
 
@@ -39,13 +38,10 @@ export default function App() {
   if (screen === "Level3Screen") {
     return <Level3 onNext={(p) => navigate("Letter1Screen", p)} onBack={() => navigate("PhonicLevels")} />;
   }
-  // PhonicsSoundTrain navigation
-  if (screen === "LetterBuilder") {
-    return <LetterBuilder onNext={(p) => navigate("LetterBuilder", p)} onBack={() => navigate("PhonicLevels")} />;
-  }
   if (screen === "Quiz") {
-    return <Quiz onNext={(p) => navigate("Quiz", p)} onBack={() => navigate("PhonicLevels")} />;
-  }
+  return <Quiz onBack={() => navigate("PhonicLevels")} />;
+}
+
 
   if (screen === "Letter1Screen") {
     return (

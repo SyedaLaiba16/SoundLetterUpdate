@@ -1,5 +1,5 @@
 // app/phonics_page/FlashcardDrill.js
-import { View, Text, StyleSheet, Pressable, Image, Alert } from "react-native";
+import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import { Audio } from "expo-av";
 import * as Speech from "expo-speech";
 import React, { useEffect, useState } from "react";
@@ -295,6 +295,11 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
   const [tries, setTries] = useState(2);
   const [shuffledOptions, setShuffledOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [score, setScore] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
+  const [wrongAnswers, setWrongAnswers] = useState([]);
+  const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
 
   const quizData = letterQuizData[targetLetter] || letterQuizData["F"];
   const currentQuestion = quizData[currentIndex];
@@ -305,7 +310,11 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
     }
     setTries(2);
     setSelectedOption(null);
+    setIsAnswerCorrect(false);
+    setShowCorrectAnswer(false);
+    setWrongAnswers([]);
     setShuffledOptions(shuffleArray(currentQuestion.options));
+    setTotalQuestions(quizData.length);
   }, [currentIndex, targetLetter]);
 
   const playSound = async (soundFile) => {
@@ -317,30 +326,62 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
     await newSound.playAsync();
   };
 
-  const speakFeedback = (type) => {
-    if (type === "correct") {
-      Speech.speak("Correct!", { language: "en" });
-    } else {
-      Speech.speak("Wrong!", { language: "en" });
-    }
+  const speakFeedback = (message) => {
+    Speech.speak(message, { language: "en" });
   };
 
   const speakOption = (word) => {
     Speech.speak(word, { language: "en" });
   };
 
+  const showAlert = (title, message, isCorrect) => {
+    // Speak the message using expo-speech
+    speakFeedback(message);
+    
+    Alert.alert(
+      title,
+      message,
+      [
+        {
+          text: "OK",
+          onPress: () => {
+            if (isCorrect) {
+              setTimeout(() => goNext(), 500);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const checkAnswer = (selected) => {
     setSelectedOption(selected);
 
     if (selected === currentQuestion.answer) {
-      speakFeedback("correct");
-      setTimeout(() => goNext(), 1000);
+      setIsAnswerCorrect(true);
+      setScore(score + 1);
+      showAlert("Correct!", "Good job!", true);
     } else {
-      speakFeedback("wrong");
+      setIsAnswerCorrect(false);
+      setWrongAnswers([...wrongAnswers, selected]);
+      
       if (tries > 1) {
         setTries(tries - 1);
+        
+        // Provide specific feedback based on question type
+        let message = "";
+        if (currentQuestion.type === "sound") {
+          message = `This is not the ${targetLetter} sound. Try again!`;
+        } else {
+          message = `"${selected}" doesn't have the ${targetLetter} sound. Choose the correct option!`;
+        }
+        
+        showAlert("Wrong!", message, false);
       } else {
-        setTimeout(() => goNext(), 1000);
+        setShowCorrectAnswer(true);
+        const correctAnswerMessage = `The correct answer is: ${currentQuestion.answer}`;
+        showAlert("Wrong!", correctAnswerMessage, false);
+        setTimeout(() => goNext(), 2000);
       }
     }
   };
@@ -349,7 +390,26 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
     if (currentIndex < quizData.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      onComplete();
+      // Calculate final score
+      const finalScore = Math.round((score / totalQuestions) * 100);
+      
+      // Create completion message
+      const completionMessage = `Quiz completed! You scored ${score} out of ${totalQuestions}`;
+      
+      // Show completion alert with score
+      Alert.alert(
+        "Quiz Completed!",
+        `You scored ${score}/${totalQuestions} (${finalScore}%)`,
+        [
+          {
+            text: "OK",
+            onPress: onComplete
+          }
+        ]
+      );
+      
+      // Speak the completion message
+      speakFeedback(completionMessage);
     }
   };
 
@@ -368,14 +428,16 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
         <Ionicons name="arrow-back" size={28} color="black" />
       </Pressable>
 
+      <Text style={styles.scoreHeader}>Score: {score}/{totalQuestions}</Text>
+      
       <Text style={styles.question}>{currentQuestion.question}</Text>
 
       {currentQuestion.type === "sound" && (
-        <Pressable onPress={() => playSound(currentQuestion.sound)}>
-          <Image
-            source={require("../../assets/images/myimages/speaker.jpg")}
-            style={{ width: 80, height: 80, alignSelf: "center", margin: 20 }}
-          />
+        <Pressable 
+          onPress={() => playSound(currentQuestion.sound)}
+          style={styles.soundButton}
+        >
+          <Ionicons name="volume-high" size={100} color="#121314ff" />
         </Pressable>
       )}
 
@@ -385,13 +447,14 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
 
           let bgColor = "#87CEEB";
           if (selectedOption) {
-            if (label === currentQuestion.answer && selectedOption === label) {
-              bgColor = "#98FB98"; // correct
-            } else if (
-              label === selectedOption &&
-              selectedOption !== currentQuestion.answer
-            ) {
-              bgColor = "#F28A8A"; // wrong
+            if (label === selectedOption) {
+              if (label === currentQuestion.answer) {
+                bgColor = "#98FB98"; // correct answer selected by user
+              } else {
+                bgColor = "#F28A8A"; // wrong selection by user
+              }
+            } else if (showCorrectAnswer && label === currentQuestion.answer) {
+              bgColor = "#98FB98"; // show correct answer after tries exhausted
             }
           }
 
@@ -399,7 +462,8 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
             <Pressable
               key={idx}
               style={[styles.option, { backgroundColor: bgColor }]}
-              onPress={() => checkAnswer(label)}
+              onPress={() => !isAnswerCorrect && !wrongAnswers.includes(label) && checkAnswer(label)}
+              disabled={isAnswerCorrect || wrongAnswers.includes(label) || showCorrectAnswer}
             >
               <Text style={styles.optionText}>{label}</Text>
 
@@ -408,10 +472,7 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
                   onPress={() => speakOption(label)}
                   style={styles.speakerButton}
                 >
-                  <Image
-                    source={require("../../assets/images/myimages/speaker.jpg")}
-                    style={{ width: 25, height: 25 }}
-                  />
+                  <Ionicons name="volume-high" size={20} color="#191d20ff" />
                 </Pressable>
               )}
             </Pressable>
@@ -419,7 +480,7 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
         })}
       </View>
 
-      <Text style={styles.score}>🔄 Tries Left: {tries}</Text>
+      <Text style={styles.tries}>🔄 Tries Left: {tries}</Text>
     </View>
   );
 }
@@ -433,12 +494,24 @@ const styles = StyleSheet.create({
     zIndex: 10,
     padding: 10,
   },
+  scoreHeader: {
+    fontSize: 18,
+    textAlign: "center",
+    marginTop: 60,
+    fontWeight: "bold",
+    color: "#2c3e50",
+  },
   question: {
     fontSize: 20,
     textAlign: "center",
-    marginTop: 60,
+    marginTop: 15,
     marginBottom: 15,
     fontWeight: "bold",
+  },
+  soundButton: {
+    alignSelf: "center",
+    margin: 20,
+    padding: 10,
   },
   options: { marginTop: 20 },
   option: {
@@ -454,7 +527,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     padding: 5,
   },
-  score: {
+  tries: {
     fontSize: 18,
     textAlign: "center",
     marginTop: 20,
