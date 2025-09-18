@@ -4,6 +4,7 @@ import { Audio } from "expo-av";
 import * as Speech from "expo-speech";
 import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { storeGameScore, logUserProgress } from "../firebase/firebaseHelper";
 
 // All quiz data for each letter
 const letterQuizData = {
@@ -300,6 +301,9 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [wrongAnswers, setWrongAnswers] = useState([]);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [questionResults, setQuestionResults] = useState([]);
 
   const quizData = letterQuizData[targetLetter] || letterQuizData["F"];
   const currentQuestion = quizData[currentIndex];
@@ -360,10 +364,22 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
     if (selected === currentQuestion.answer) {
       setIsAnswerCorrect(true);
       setScore(score + 1);
+      setCorrectAnswers(correctAnswers + 1);
+      
+      // Record question result
+      setQuestionResults(prev => [...prev, {
+        question: currentQuestion.question,
+        userAnswer: selected,
+        correctAnswer: currentQuestion.answer,
+        isCorrect: true,
+        attempts: 3 - tries // 1 means first try correct, 2 means second try correct
+      }]);
+      
       showAlert("Correct!", "Good job!", true);
     } else {
       setIsAnswerCorrect(false);
       setWrongAnswers([...wrongAnswers, selected]);
+      setWrongAttempts(wrongAttempts + 1);
       
       if (tries > 1) {
         setTries(tries - 1);
@@ -379,10 +395,53 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
         showAlert("Wrong!", message, false);
       } else {
         setShowCorrectAnswer(true);
+        
+        // Record question result
+        setQuestionResults(prev => [...prev, {
+          question: currentQuestion.question,
+          userAnswer: selected,
+          correctAnswer: currentQuestion.answer,
+          isCorrect: false,
+          attempts: 3 // 3 means failed all attempts
+        }]);
+        
         const correctAnswerMessage = `The correct answer is: ${currentQuestion.answer}`;
         showAlert("Wrong!", correctAnswerMessage, false);
         setTimeout(() => goNext(), 2000);
       }
+    }
+  };
+
+  const saveResultsToFirebase = async () => {
+    try {
+      const percentage = Math.round((score / totalQuestions) * 100);
+      const gameType = `flashcard_${targetLetter}`;
+      
+      // Store in LetterSoundsScores
+      await storeGameScore(null, gameType, {
+        score,
+        totalQuestions,
+        percentage,
+        letter: targetLetter,
+        wrongAttempts,
+        correctAnswers,
+        questionResults
+      });
+      
+      // Update user progress
+      await logUserProgress(null, gameType, {
+        score,
+        totalQuestions,
+        percentage,
+        completed: true,
+        letter: targetLetter,
+        wrongAttempts,
+        correctAnswers
+      });
+      
+      console.log("Results saved to Firebase successfully");
+    } catch (error) {
+      console.error("Error saving results to Firebase:", error);
     }
   };
 
@@ -392,6 +451,9 @@ export default function FlashcardDrill({ route, onComplete, onBack }) {
     } else {
       // Calculate final score
       const finalScore = Math.round((score / totalQuestions) * 100);
+      
+      // Save results to Firebase
+      saveResultsToFirebase();
       
       // Create completion message
       const completionMessage = `Quiz completed! You scored ${score} out of ${totalQuestions}`;

@@ -55,14 +55,14 @@ export default function App() {
 
   // Add the BalloonGame screen navigation
   if (screen === "BalloonGame") {
-    return (
-      <BalloonGame
-        route={{ params: { targetLetter: params.targetLetter } }}
-        onBack={() => navigate("Letter1Screen", { letter: params.targetLetter })}
-        onComplete={() => navigate("PhonicLevels", { letter: params.targetLetter })}
-      />
-    );
-  }
+  return (
+    <BalloonGame
+      route={{ params: { targetLetter: params.targetLetter } }}
+      onBack={() => navigate("Letter1Screen", { letter: params.targetLetter })}
+      onComplete={() => navigate("PhonicLevels", { letter: params.targetLetter })}
+    />
+  );
+}
 // In your App.js navigation
 if (screen === "SoundMatchingGame") {
   return (
